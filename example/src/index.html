@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Dot.js Demo</title>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="module">
+        import { h, render } from '../../framework/src/core.js';
+
+        const vnode = h('div', {},
+            h('h1', {}, 'Hello World'),
+            h('p', {}, 'This is a basic example'),
+            //before event detection inside render -> h('button', { onclick: 'alert("Hello!")' }, 'Click me')
+            h('button', { onClick: () => alert('Hello!') }, 'Click me')
+        );
+
+        render(vnode, document.getElementById('app'));
+    </script>
+</body>
+</html> 
