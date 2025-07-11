@@ -37,3 +37,41 @@ export function render(vnode, container) {
     container.appendChild(el);
     return el;
 }
+
+// Simple state management and re-render approach
+let currentRenderFunction = null; // App - Store the render function instead of static vnode
+let currentContainer = null;
+
+export function mount(renderFunction, container) {
+    currentRenderFunction = renderFunction; // App
+    currentContainer = container;
+    
+    // Clear container and render fresh
+    container.innerHTML = '';
+    //if the render function is a function, call it to get the vnode
+    const vnode = typeof renderFunction === 'function' ? renderFunction() : renderFunction;
+    render(vnode, container);  //vnode = h('div', {}, 'Hello World') 
+}
+
+export function rerender() {
+    if (currentRenderFunction && currentContainer) {
+        // Clear and re-render everything with fresh vnode
+        currentContainer.innerHTML = '';
+        const vnode = typeof currentRenderFunction === 'function' ? currentRenderFunction() : currentRenderFunction;
+        render(vnode, currentContainer);
+    }
+}
+
+// Simple state hook
+export function useState(initialValue) {
+    let value = initialValue;
+    
+    const setValue = (newValue) => {
+        value = newValue;
+        rerender(); // Trigger full re-render on state change
+    };
+    
+    const getValue = () => value;
+    
+    return [getValue, setValue];
+}
