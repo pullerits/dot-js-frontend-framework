@@ -7,7 +7,7 @@
     <div id="app"></div>
 
     <script type="module">
-        import { h, mount, useState } from '../../framework/src/core.js';
+        import { h, mount, useState, addRoute, navigate, Router } from '../../framework/src/core.js';
 
         const [count, setCount] = useState(0);
         /*
@@ -33,16 +33,52 @@
             );
         }
 
-        function App() {
+        function Navigation() {
+            return h('nav', {},
+                h('button', { onClick: () => navigate('/') }, 'Home'),
+                h('button', { onClick: () => navigate('/about') }, 'About'),
+                h('button', { onClick: () => navigate('/contact') }, 'Contact')
+            );
+        }
+
+        function HomePage() {
             return h('div', {},
-                h('h1', {}, 'Hello World'),
-                h('p', {}, 'This is a basic example with state management'),
+                h('h1', {}, 'Home Page'),
+                h('p', {}, 'Welcome to the home page with state management'),
                 Counter(),
-                h('button', { onClick: () => alert('Hello!') }, 'Say Hello'),
-                'This is a direct text node for testing',
+                h('button', { onClick: () => alert('Hello from home!') }, 'Say Hello')
+            );
+        }
+
+        function AboutPage() {
+            return h('div', {},
+                h('h1', {}, 'About Page'),
+                h('p', {}, 'This is the about page of our Dot.js framework demo.'),
                 Blog()
             );
         }
+
+        function ContactPage() {
+            return h('div', {},
+                h('h1', {}, 'Contact Page'),
+                h('p', {}, 'Get in touch with us!'),
+                h('p', {}, 'Email: hello@dotjs.com'),
+                h('p', {}, 'Phone: (555) 123-4567')
+            );
+        }
+
+        function App() {
+            return h('div', {},
+                Navigation(),
+                h('hr', {}),
+                Router()
+            );
+        }
+
+        // Register routes
+        addRoute('/', HomePage);
+        addRoute('/about', AboutPage);
+        addRoute('/contact', ContactPage);
 
         mount(App, document.getElementById('app'));
     </script>

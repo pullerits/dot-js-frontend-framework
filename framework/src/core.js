@@ -39,18 +39,17 @@ export function render(vnode, container) {
 }
 
 // Simple state management and re-render approach
-let currentRenderFunction = null; // App - Store the render function instead of static vnode
+let currentRenderFunction = null; // Store the render function instead of static vnode
 let currentContainer = null;
 
 export function mount(renderFunction, container) {
-    currentRenderFunction = renderFunction; // App
+    currentRenderFunction = renderFunction;
     currentContainer = container;
     
     // Clear container and render fresh
     container.innerHTML = '';
-    //if the render function is a function, call it to get the vnode
     const vnode = typeof renderFunction === 'function' ? renderFunction() : renderFunction;
-    render(vnode, container);  //vnode = h('div', {}, 'Hello World') 
+    render(vnode, container);
 }
 
 export function rerender() {
@@ -74,4 +73,44 @@ export function useState(initialValue) {
     const getValue = () => value;
     
     return [getValue, setValue];
+}
+
+// Simple routing system
+let routes = {};
+let currentRoute = '/';
+
+export function addRoute(path, component) {
+    routes[path] = component;
+}
+
+export function navigate(path) {
+    currentRoute = path;
+    // Update browser URL without page reload
+    window.history.pushState({}, '', path);
+    rerender(); // Trigger re-render with new route
+}
+
+export function getCurrentRoute() {
+    return currentRoute;
+}
+
+export function Router() {
+    const RouteComponent = routes[currentRoute];
+    if (RouteComponent) {
+        return typeof RouteComponent === 'function' ? RouteComponent() : RouteComponent;
+    }
+    // Default 404 component
+    return h('div', {}, h('h1', {}, '404 - Page Not Found'));
+}
+
+// Initialize router on page load
+if (typeof window !== 'undefined') {
+    // Set initial route from URL
+    currentRoute = window.location.pathname;
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', () => {
+        currentRoute = window.location.pathname;
+        rerender();
+    });
 }
