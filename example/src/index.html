@@ -16,15 +16,31 @@
         const setCount = stateArray[1];
         */
         
+        function Counter() {
+            return h('div', { class: 'counter' },
+                h('p', {}, `Count: ${count()}`),
+                h('button', { onClick: () => setCount(count() + 1) }, 'Increment'),
+                h('button', { onClick: () => setCount(count() - 1) }, 'Decrement')
+            );
+        }
+
+        function Blog() {
+            return h('div', { class: 'blog' },
+                h('h2', {}, 'Blog Section'),
+                h('p', {}, 'Welcome to my blog! Here are some interesting thoughts.'),
+                h('p', {}, 'This is the first blog post about building a JavaScript framework.'),
+                h('p', {}, 'It\'s amazing how much you can accomplish with just a few functions!')
+            );
+        }
+
         function App() {
             return h('div', {},
                 h('h1', {}, 'Hello World'),
                 h('p', {}, 'This is a basic example with state management'),
-                h('p', {}, `Count: ${count()}`),
-                h('button', { onClick: () => setCount(count() + 1) }, 'Increment'),
-                h('button', { onClick: () => setCount(count() - 1) }, 'Decrement'),
+                Counter(),
                 h('button', { onClick: () => alert('Hello!') }, 'Say Hello'),
-                'This is a direct text node for testing'
+                'This is a direct text node for testing',
+                Blog()
             );
         }
 
