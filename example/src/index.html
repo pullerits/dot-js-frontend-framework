@@ -1,86 +1,188 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basic Dot.js Demo</title>
+    <title>Todo App - Dot.js Framework Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .todo-app {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .todo-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .todo-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .todo-input button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .todo-input button:hover {
+            background: #0056b3;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+        }
+        .todo-text {
+            flex: 1;
+        }
+        .todo-item button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        .complete-btn {
+            background: #28a745;
+            color: white;
+        }
+        .complete-btn:hover {
+            background: #218838;
+        }
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div id="app"></div>
 
     <script type="module">
-        import { h, mount, useState, addRoute, navigate, Router } from '../../framework/src/core.js';
+        import { h, mount, useState } from '../../framework/src/core.js';
 
-        const [count, setCount] = useState(0);
-        /*
-        const stateArray = useState(0);
-        const count = stateArray[0];
-        const setCount = stateArray[1];
-        */
-        
-        function Counter() {
-            return h('div', { class: 'counter' },
-                h('p', {}, `Count: ${count()}`),
-                h('button', { onClick: () => setCount(count() + 1) }, 'Increment'),
-                h('button', { onClick: () => setCount(count() - 1) }, 'Decrement')
+        // Todo state management
+        const [todos, setTodos] = useState([]);
+
+        //add todo function
+        function addTodo(inputElement) {
+            const text = inputElement.value.trim();
+            if (text) {
+                const newTodo = {
+                    id: Date.now(),
+                    text: text,
+                    completed: false
+                };
+                setTodos([...todos(), newTodo]);
+                inputElement.value = '';
+            }
+        }
+
+        function toggleTodo(id) {
+            const updatedTodos = todos().map(todo => 
+                todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            );
+            setTodos(updatedTodos);
+        }
+
+        function deleteTodo(id) {
+            const updatedTodos = todos().filter(todo => todo.id !== id);
+            setTodos(updatedTodos);
+        }
+
+        function TodoInput() {
+            return h('div', { class: 'todo-input' },
+                h('input', {
+                    type: 'text',
+                    placeholder: 'Add a new todo...',
+                    onKeyPress: (e) => e.key === 'Enter' && addTodo(e.target)
+                }),
+                h('button', { 
+                    onClick: (e) => {
+                        const input = e.target.previousElementSibling;
+                        addTodo(input);
+                    }
+                }, 'Add Todo')
             );
         }
 
-        function Blog() {
-            return h('div', { class: 'blog' },
-                h('h2', {}, 'Blog Section'),
-                h('p', {}, 'Welcome to my blog! Here are some interesting thoughts.'),
-                h('p', {}, 'This is the first blog post about building a JavaScript framework.'),
-                h('p', {}, 'It\'s amazing how much you can accomplish with just a few functions!')
+        function TodoItem(todo) {
+            return h('div', { 
+                class: `todo-item ${todo.completed ? 'completed' : ''}` 
+            },
+                h('button', {
+                    class: 'complete-btn',
+                    onClick: () => toggleTodo(todo.id)
+                }, todo.completed ? '✓' : '○'),
+                h('span', { class: 'todo-text' }, todo.text),
+                h('button', {
+                    class: 'delete-btn',
+                    onClick: () => deleteTodo(todo.id)
+                }, '×')
             );
         }
 
-        function Navigation() {
-            return h('nav', {},
-                h('button', { onClick: () => navigate('/') }, 'Home'),
-                h('button', { onClick: () => navigate('/about') }, 'About'),
-                h('button', { onClick: () => navigate('/contact') }, 'Contact')
+        function TodoList() {
+            const todoItems = todos().map(todo => TodoItem(todo));
+            return h('div', { class: 'todo-list' }, ...todoItems);
+        }
+
+        function TodoStats() {
+            const allTodos = todos();
+            const completed = allTodos.filter(todo => todo.completed).length;
+            const total = allTodos.length;
+            
+            return h('div', { class: 'stats' },
+                h('p', {}, `Total todos: ${total}`),
+                h('p', {}, `Completed: ${completed}`),
+                h('p', {}, `Remaining: ${total - completed}`)
             );
         }
 
-        function HomePage() {
-            return h('div', {},
-                h('h1', {}, 'Home Page'),
-                h('p', {}, 'Welcome to the home page with state management'),
-                Counter(),
-                h('button', { onClick: () => alert('Hello from home!') }, 'Say Hello')
+        function TodoApp() {
+            return h('div', { class: 'todo-app' },
+                h('h1', {}, 'Todo App - Dot.js Framework'),
+                h('p', {}, 'A simple todo app showcasing state management and component composition'),
+                TodoInput(),
+                TodoList(),
+                TodoStats()
             );
         }
 
-        function AboutPage() {
-            return h('div', {},
-                h('h1', {}, 'About Page'),
-                h('p', {}, 'This is the about page of our Dot.js framework demo.'),
-                Blog()
-            );
-        }
-
-        function ContactPage() {
-            return h('div', {},
-                h('h1', {}, 'Contact Page'),
-                h('p', {}, 'Get in touch with us!'),
-                h('p', {}, 'Email: hello@dotjs.com'),
-                h('p', {}, 'Phone: (555) 123-4567')
-            );
-        }
-
-        function App() {
-            return h('div', {},
-                Navigation(),
-                h('hr', {}),
-                Router()
-            );
-        }
-
-        // Register routes
-        addRoute('/', HomePage);
-        addRoute('/about', AboutPage);
-        addRoute('/contact', ContactPage);
-
-        mount(App, document.getElementById('app'));
+        mount(TodoApp, document.getElementById('app'));
     </script>
 </body>
 </html> 

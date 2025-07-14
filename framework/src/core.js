@@ -1,3 +1,34 @@
+
+
+/*example vnode that gets passed to the render(vnode, container) function:
+h("div", { className: "container", id: "main", onClick: () => alert("clicked"), disabled: true }, "Hello World", 
+    h("button", { className: "btn", onMouseEnter: () => console.log("hover") }, "Click me")
+)
+
+const vnode = {
+  type: "div",
+  props: {
+    className: "container",
+    id: "main",
+    onClick: () => alert("clicked"),
+    disabled: true
+  },
+  children: [
+    "Hello World",
+    {
+      type: "button",
+      props: {
+        className: "btn",
+        onMouseEnter: () => console.log("hover")
+      },
+      children: ["Click me"]
+    }
+  ]
+}
+*/ 
+
+// ...children creates an array of children
+
 // hyperscript helper for creating virtual DOM nodes
 export function h(type, props = {}, ...children) {
     return { 
@@ -20,10 +51,13 @@ export function render(vnode, container) {
     const el = document.createElement(vnode.type);
   
     // props / attributes
-    for (const [key, value] of Object.entries(vnode.props ?? {})) {
+    for (const key in vnode.props || {}) {
+      const value = vnode.props[key];
+      
+      // Check if this is an event handler
       if (key.startsWith('on') && typeof value === 'function') {
         // Handle event listeners
-        const eventName = key.toLowerCase().slice(2); // 'onClick' -> 'click'
+        const eventName = key.toLowerCase().slice(2);
         el.addEventListener(eventName, value);
       } else {
         // Handle regular attributes

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Dot.js Demo</title>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="module">
+        import { h, mount, useState, addRoute, navigate, Router } from '../../framework/src/core.js';
+
+        const [count, setCount] = useState(0);
+        /*
+        const stateArray = useState(0);
+        const count = stateArray[0];
+        const setCount = stateArray[1];
+        */
+        
+        function Counter() {
+            return h('div', { class: 'counter' },
+                h('p', {}, `Count: ${count()}`),
+                h('button', { onClick: () => setCount(count() + 1) }, 'Increment'),
+                h('button', { onClick: () => setCount(count() - 1) }, 'Decrement')
+            );
+        }
+
+        function Blog() {
+            return h('div', { class: 'blog' },
+                h('h2', {}, 'Blog Section'),
+                h('p', {}, 'Welcome to my blog! Here are some interesting thoughts.'),
+                h('p', {}, 'This is the first blog post about building a JavaScript framework.'),
+                h('p', {}, 'It\'s amazing how much you can accomplish with just a few functions!')
+            );
+        }
+
+        function Navigation() {
+            return h('nav', {},
+                h('button', { onClick: () => navigate('/') }, 'Home'),
+                h('button', { onClick: () => navigate('/about') }, 'About'),
+                h('button', { onClick: () => navigate('/contact') }, 'Contact')
+            );
+        }
+
+        function HomePage() {
+            return h('div', {},
+                h('h1', {}, 'Home Page'),
+                h('p', {}, 'Welcome to the home page with state management'),
+                Counter(),
+                h('button', { onClick: () => alert('Hello from home!') }, 'Say Hello')
+            );
+        }
+
+        function AboutPage() {
+            return h('div', {},
+                h('h1', {}, 'About Page'),
+                h('p', {}, 'This is the about page of our Dot.js framework demo.'),
+                Blog()
+            );
+        }
+
+        function ContactPage() {
+            return h('div', {},
+                h('h1', {}, 'Contact Page'),
+                h('p', {}, 'Get in touch with us!'),
+                h('p', {}, 'Email: hello@dotjs.com'),
+                h('p', {}, 'Phone: (555) 123-4567')
+            );
+        }
+
+        function App() {
+            return h('div', {},
+                Navigation(),
+                h('hr', {}),
+                Router()
+            );
+        }
+
+        // Register routes
+        addRoute('/', HomePage);
+        addRoute('/about', AboutPage);
+        addRoute('/contact', ContactPage);
+
+        mount(App, document.getElementById('app'));
+    </script>
+</body>
+</html> 
