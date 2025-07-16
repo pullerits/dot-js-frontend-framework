@@ -94,94 +94,102 @@
     <script type="module">
         import { h, mount, useState } from '../../framework/src/core.js';
 
-        // Todo state management
-        const [todos, setTodos] = useState([]);
-
-        //add todo function
-        function addTodo(inputElement) {
-            const text = inputElement.value.trim();
-            if (text) {
-                const newTodo = {
-                    id: Date.now(),
-                    text: text,
-                    completed: false
-                };
-                setTodos([...todos(), newTodo]);
-                inputElement.value = '';
-            }
-        }
-
-        function toggleTodo(id) {
-            const updatedTodos = todos().map(todo => 
-                todo.id === id ? { ...todo, completed: !todo.completed } : todo
-            );
-            setTodos(updatedTodos);
-        }
-
-        function deleteTodo(id) {
-            const updatedTodos = todos().filter(todo => todo.id !== id);
-            setTodos(updatedTodos);
-        }
-
-        function TodoInput() {
-            return h('div', { class: 'todo-input' },
-                h('input', {
-                    type: 'text',
-                    placeholder: 'Add a new todo...',
-                    onKeyPress: (e) => e.key === 'Enter' && addTodo(e.target)
-                }),
-                h('button', { 
-                    onClick: (e) => {
-                        const input = e.target.previousElementSibling;
-                        addTodo(input);
-                    }
-                }, 'Add Todo')
-            );
-        }
-
-        function TodoItem(todo) {
-            return h('div', { 
-                class: `todo-item ${todo.completed ? 'completed' : ''}` 
-            },
-                h('button', {
-                    class: 'complete-btn',
-                    onClick: () => toggleTodo(todo.id)
-                }, todo.completed ? '✓' : '○'),
-                h('span', { class: 'todo-text' }, todo.text),
-                h('button', {
-                    class: 'delete-btn',
-                    onClick: () => deleteTodo(todo.id)
-                }, '×')
-            );
-        }
-
-        function TodoList() {
-            const todoItems = todos().map(todo => TodoItem(todo));
-            return h('div', { class: 'todo-list' }, ...todoItems);
-        }
-
-        function TodoStats() {
-            const allTodos = todos();
-            const completed = allTodos.filter(todo => todo.completed).length;
-            const total = allTodos.length;
-            
-            return h('div', { class: 'stats' },
-                h('p', {}, `Total todos: ${total}`),
-                h('p', {}, `Completed: ${completed}`),
-                h('p', {}, `Remaining: ${total - completed}`)
-            );
-        }
-
+        // Todo App Component - following React patterns
         function TodoApp() {
-            return h('div', { class: 'todo-app' },
+            // State management - just like React hooks!
+            const [todos, setTodos] = useState([]);
+            const [newTodo, setNewTodo] = useState('');
+            
+            // Event handlers - same as you'd write in React
+            const addTodo = () => {
+                if (newTodo().trim()) {
+                    const todo = {
+                        id: Date.now(),
+                        text: newTodo().trim(),
+                        completed: false
+                    };
+                    setTodos([...todos(), todo]);
+                    setNewTodo(''); // Clear input after adding
+                }
+            };
+            
+            const toggleTodo = (id) => {
+                setTodos(todos().map(todo => 
+                    todo.id === id ? { ...todo, completed: !todo.completed } : todo
+                ));
+            };
+            
+            const deleteTodo = (id) => {
+                setTodos(todos().filter(todo => todo.id !== id));
+            };
+            
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            };
+            
+            // Helper components
+            function TodoInput() {
+                return h('div', { className: 'todo-input' },
+                    h('input', {
+                        type: 'text',
+                        placeholder: 'Add a new todo...',
+                        value: newTodo(), // Controlled input
+                        onInput: (e) => setNewTodo(e.target.value),
+                        onKeyPress: handleKeyPress
+                    }),
+                    h('button', { 
+                        onClick: addTodo
+                    }, 'Add Todo')
+                );
+            }
+            
+            function TodoItem({ todo }) {
+                return h('div', { 
+                    className: `todo-item ${todo.completed ? 'completed' : ''}` 
+                },
+                    h('button', {
+                        className: 'complete-btn',
+                        onClick: () => toggleTodo(todo.id)
+                    }, todo.completed ? '✓' : '○'),
+                    h('span', { className: 'todo-text' }, todo.text),
+                    h('button', {
+                        className: 'delete-btn',
+                        onClick: () => deleteTodo(todo.id)
+                    }, '×')
+                );
+            }
+            
+            function TodoList() {
+                return h('div', { className: 'todo-list' },
+                    ...todos().map(todo => TodoItem({ todo }))
+                );
+            }
+            
+            function TodoStats() {
+                const allTodos = todos();
+                const completed = allTodos.filter(todo => todo.completed).length;
+                const total = allTodos.length;
+                
+                return h('div', { className: 'stats' },
+                    h('p', {}, `Total todos: ${total}`),
+                    h('p', {}, `Completed: ${completed}`),
+                    h('p', {}, `Remaining: ${total - completed}`)
+                );
+            }
+            
+            // Main render - like React's return statement
+            return h('div', { className: 'todo-app' },
                 h('h1', {}, 'Todo App - Dot.js Framework'),
-                h('p', {}, 'A simple todo app showcasing state management and component composition'),
+                h('p', {}, 'A React-like todo app showcasing proper state management and component composition'),
                 TodoInput(),
                 TodoList(),
                 TodoStats()
             );
         }
 
+        // Mount the app - like ReactDOM.render()
         mount(TodoApp, document.getElementById('app'));
     </script>
 </body>
